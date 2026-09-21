@@ -1,38 +1,31 @@
 ```javascript
-/* =========================
-   NOVRA STORE
-========================= */
-
 const WHATSAPP_NUMBER = "6285810127651";
 
 const products = [
   {
     id: 1,
     name: "NOVRA BOX TEE — BLACK",
-    description: "Boxy fit / Heavy cotton / Black",
+    description: "Boxy Fit / Heavy Cotton / Black",
     price: 100000,
-    oldPrice: 299000,
-    image: ""
+    oldPrice: 299000
   },
   {
     id: 2,
     name: "NOVRA BOX TEE — WHITE",
-    description: "Boxy fit / Heavy cotton / White",
+    description: "Boxy Fit / Heavy Cotton / White",
     price: 100000,
-    oldPrice: 299000,
-    image: ""
+    oldPrice: 299000
   },
   {
     id: 3,
     name: "NOVRA BOX TEE — GREY",
-    description: "Boxy fit / Heavy cotton / Grey",
+    description: "Boxy Fit / Heavy Cotton / Grey",
     price: 100000,
-    oldPrice: 299000,
-    image: ""
+    oldPrice: 299000
   }
 ];
 
-let cart = JSON.parse(localStorage.getItem("novraCart")) || [];
+let cart = JSON.parse(localStorage.getItem("novraCart") || "[]");
 
 
 /* =========================
@@ -40,66 +33,82 @@ let cart = JSON.parse(localStorage.getItem("novraCart")) || [];
 ========================= */
 
 function showRegister() {
-  document.getElementById("loginForm").classList.add("hidden");
-  document.getElementById("registerForm").classList.remove("hidden");
-  clearAuthMessage();
+  document.getElementById("loginForm").style.display = "none";
+  document.getElementById("registerForm").style.display = "block";
+  document.getElementById("authMessage").textContent = "";
 }
 
 function showLogin() {
-  document.getElementById("registerForm").classList.add("hidden");
-  document.getElementById("loginForm").classList.remove("hidden");
-  clearAuthMessage();
-}
-
-function setAuthMessage(message) {
-  document.getElementById("authMessage").textContent = message;
-}
-
-function clearAuthMessage() {
+  document.getElementById("registerForm").style.display = "none";
+  document.getElementById("loginForm").style.display = "block";
   document.getElementById("authMessage").textContent = "";
 }
 
 function register() {
-  const username = document.getElementById("registerUsername").value.trim();
-  const password = document.getElementById("registerPassword").value;
-  const confirm = document.getElementById("registerConfirm").value;
+  const username =
+    document.getElementById("registerUsername").value.trim();
 
-  if (!username || !password) {
-    setAuthMessage("Username dan password wajib diisi.");
+  const password =
+    document.getElementById("registerPassword").value;
+
+  const confirm =
+    document.getElementById("registerConfirm").value;
+
+  const message =
+    document.getElementById("authMessage");
+
+  if (!username || !password || !confirm) {
+    message.textContent = "Isi semua kolom terlebih dahulu.";
+    return;
+  }
+
+  if (password.length < 4) {
+    message.textContent = "Password minimal 4 karakter.";
     return;
   }
 
   if (password !== confirm) {
-    setAuthMessage("Password tidak sama.");
+    message.textContent = "Password tidak sama.";
     return;
   }
 
   const user = {
-    username,
-    password
+    username: username,
+    password: password
   };
 
-  localStorage.setItem("novraUser", JSON.stringify(user));
+  localStorage.setItem(
+    "novraUser",
+    JSON.stringify(user)
+  );
 
-  setAuthMessage("Akun berhasil dibuat. Silakan login.");
+  message.textContent =
+    "Akun berhasil dibuat. Silakan login.";
 
-  setTimeout(() => {
+  document.getElementById("loginUsername").value = username;
+  document.getElementById("loginPassword").value = "";
+
+  setTimeout(function () {
     showLogin();
-
-    document.getElementById("loginUsername").value = username;
   }, 700);
 }
 
 function login() {
-  const username = document.getElementById("loginUsername").value.trim();
-  const password = document.getElementById("loginPassword").value;
+  const username =
+    document.getElementById("loginUsername").value.trim();
 
-  const savedUser = JSON.parse(
-    localStorage.getItem("novraUser")
-  );
+  const password =
+    document.getElementById("loginPassword").value;
+
+  const message =
+    document.getElementById("authMessage");
+
+  const savedUser =
+    JSON.parse(localStorage.getItem("novraUser") || "null");
 
   if (!savedUser) {
-    setAuthMessage("Belum ada akun. Silakan daftar dulu.");
+    message.textContent =
+      "Belum punya akun. Klik Daftar terlebih dahulu.";
     return;
   }
 
@@ -107,30 +116,38 @@ function login() {
     username === savedUser.username &&
     password === savedUser.password
   ) {
-    localStorage.setItem("novraLoggedIn", "true");
+    localStorage.setItem(
+      "novraLoggedIn",
+      "true"
+    );
 
-    document.getElementById("authPage").classList.add("hidden");
-    document.getElementById("app").classList.remove("hidden");
-
-    renderProducts();
-    updateCartCount();
+    openStore();
   } else {
-    setAuthMessage("Username atau password salah.");
+    message.textContent =
+      "Username atau password salah.";
   }
+}
+
+function openStore() {
+  document.getElementById("authPage").style.display = "none";
+  document.getElementById("app").style.display = "block";
+
+  renderProducts();
+  updateCartCount();
 }
 
 function logout() {
   localStorage.removeItem("novraLoggedIn");
 
-  document.getElementById("app").classList.add("hidden");
-  document.getElementById("authPage").classList.remove("hidden");
+  document.getElementById("app").style.display = "none";
+  document.getElementById("authPage").style.display = "flex";
 
   document.getElementById("loginPassword").value = "";
 }
 
 
 /* =========================
-   PRODUCT
+   PRODUCTS
 ========================= */
 
 function formatRupiah(number) {
@@ -142,52 +159,58 @@ function formatRupiah(number) {
 }
 
 function renderProducts() {
-  const grid = document.getElementById("productGrid");
+  const grid =
+    document.getElementById("productGrid");
 
-  grid.innerHTML = products.map(product => {
+  if (!grid) return;
 
-    const imageHTML = product.image
-      ? `<img src="${product.image}" alt="${product.name}">`
-      : `<div class="product-placeholder">NOVRA</div>`;
+  grid.innerHTML = "";
 
-    return `
-      <article class="product">
+  products.forEach(function (product) {
 
-        <div class="product-image">
-          ${imageHTML}
+    const card =
+      document.createElement("article");
+
+    card.className = "product";
+
+    card.innerHTML = `
+      <div class="product-image">
+        <div class="product-placeholder">
+          NOVRA
+        </div>
+      </div>
+
+      <div class="product-info">
+
+        <div class="product-name">
+          ${product.name}
         </div>
 
-        <div class="product-info">
-
-          <div class="product-name">
-            ${product.name}
-          </div>
-
-          <div class="product-desc">
-            ${product.description}
-          </div>
-
-          <div class="price-row">
-            <span class="old-price">
-              ${formatRupiah(product.oldPrice)}
-            </span>
-
-            <span class="new-price">
-              ${formatRupiah(product.price)}
-            </span>
-          </div>
-
-          <button
-            class="add-btn"
-            onclick="addToCart(${product.id})">
-            ADD TO CART
-          </button>
-
+        <div class="product-desc">
+          ${product.description}
         </div>
 
-      </article>
+        <div class="price-row">
+          <span class="old-price">
+            ${formatRupiah(product.oldPrice)}
+          </span>
+
+          <span class="new-price">
+            ${formatRupiah(product.price)}
+          </span>
+        </div>
+
+        <button
+          class="add-btn"
+          onclick="addToCart(${product.id})">
+          ADD TO CART
+        </button>
+
+      </div>
     `;
-  }).join("");
+
+    grid.appendChild(card);
+  });
 }
 
 
@@ -195,51 +218,37 @@ function renderProducts() {
    CART
 ========================= */
 
-function addToCart(productId) {
-  const product = products.find(p => p.id === productId);
+function addToCart(id) {
+  const product =
+    products.find(function (item) {
+      return item.id === id;
+    });
 
   if (!product) return;
 
-  const existing = cart.find(item => item.id === productId);
+  const existing =
+    cart.find(function (item) {
+      return item.id === id;
+    });
 
   if (existing) {
-    existing.quantity++;
+    existing.quantity += 1;
   } else {
     cart.push({
-      ...product,
+      id: product.id,
+      name: product.name,
+      price: product.price,
       quantity: 1
     });
   }
 
   saveCart();
   updateCartCount();
-
-  openCart();
-}
-
-function removeFromCart(productId) {
-  cart = cart.filter(item => item.id !== productId);
-
-  saveCart();
   renderCart();
-  updateCartCount();
-}
 
-function changeQuantity(productId, amount) {
-  const item = cart.find(item => item.id === productId);
-
-  if (!item) return;
-
-  item.quantity += amount;
-
-  if (item.quantity <= 0) {
-    removeFromCart(productId);
-    return;
-  }
-
-  saveCart();
-  renderCart();
-  updateCartCount();
+  document
+    .getElementById("cartOverlay")
+    .classList.remove("hidden");
 }
 
 function saveCart() {
@@ -250,42 +259,60 @@ function saveCart() {
 }
 
 function updateCartCount() {
-  const count = cart.reduce(
-    (total, item) => total + item.quantity,
-    0
-  );
+  const element =
+    document.getElementById("cartCount");
 
-  document.getElementById("cartCount").textContent = count;
+  if (!element) return;
+
+  const count =
+    cart.reduce(function (total, item) {
+      return total + item.quantity;
+    }, 0);
+
+  element.textContent = count;
 }
 
 function renderCart() {
-  const container = document.getElementById("cartItems");
-  const totalElement = document.getElementById("cartTotal");
+  const container =
+    document.getElementById("cartItems");
+
+  const totalElement =
+    document.getElementById("cartTotal");
+
+  if (!container || !totalElement) return;
 
   if (cart.length === 0) {
-    container.innerHTML = `
-      <div style="
-        text-align:center;
-        color:#666;
-        padding:60px 20px;
-      ">
+    container.innerHTML =
+      `<p style="color:#777;text-align:center;padding:50px 0;">
         Keranjang masih kosong.
-      </div>
-    `;
+      </p>`;
 
     totalElement.textContent = "Rp0";
     return;
   }
 
-  container.innerHTML = cart.map(item => `
-    <div class="cart-item">
+  let total = 0;
 
+  container.innerHTML = "";
+
+  cart.forEach(function (item) {
+
+    const subtotal =
+      item.price * item.quantity;
+
+    total += subtotal;
+
+    const div =
+      document.createElement("div");
+
+    div.className = "cart-item";
+
+    div.innerHTML = `
       <div>
         <h4>${item.name}</h4>
 
         <p>
           ${formatRupiah(item.price)}
-          × ${item.quantity}
         </p>
 
         <div style="margin-top:10px;">
@@ -309,7 +336,7 @@ function renderCart() {
 
       <div style="text-align:right;">
         <strong>
-          ${formatRupiah(item.price * item.quantity)}
+          ${formatRupiah(subtotal)}
         </strong>
 
         <br>
@@ -320,37 +347,71 @@ function renderCart() {
           Hapus
         </button>
       </div>
+    `;
 
-    </div>
-  `).join("");
+    container.appendChild(div);
+  });
 
-  const total = cart.reduce(
-    (sum, item) => sum + item.price * item.quantity,
-    0
-  );
+  totalElement.textContent =
+    formatRupiah(total);
+}
 
-  totalElement.textContent = formatRupiah(total);
+function changeQuantity(id, amount) {
+  const item =
+    cart.find(function (item) {
+      return item.id === id;
+    });
+
+  if (!item) return;
+
+  item.quantity += amount;
+
+  if (item.quantity <= 0) {
+    removeFromCart(id);
+    return;
+  }
+
+  saveCart();
+  renderCart();
+  updateCartCount();
+}
+
+function removeFromCart(id) {
+  cart =
+    cart.filter(function (item) {
+      return item.id !== id;
+    });
+
+  saveCart();
+  renderCart();
+  updateCartCount();
 }
 
 function openCart() {
-  document.getElementById("cartOverlay").classList.remove("hidden");
+  document
+    .getElementById("cartOverlay")
+    .classList.remove("hidden");
+
   renderCart();
 }
 
 function closeCart(event) {
   if (
     event &&
-    event.target !== document.getElementById("cartOverlay")
+    event.target !==
+    document.getElementById("cartOverlay")
   ) {
     return;
   }
 
-  document.getElementById("cartOverlay").classList.add("hidden");
+  document
+    .getElementById("cartOverlay")
+    .classList.add("hidden");
 }
 
 
 /* =========================
-   WHATSAPP CHECKOUT
+   WHATSAPP
 ========================= */
 
 function checkoutWhatsApp() {
@@ -360,46 +421,65 @@ function checkoutWhatsApp() {
     return;
   }
 
-  let message = "Halo Novra, saya mau order:%0A%0A";
+  let message =
+    "Halo Novra, saya mau order:%0A%0A";
 
-  cart.forEach(item => {
+  cart.forEach(function (item) {
     message +=
-      `• ${item.name}%0A` +
-      `  ${item.quantity} × ${formatRupiah(item.price)}%0A%0A`;
+      "• " +
+      item.name +
+      "%0A" +
+      item.quantity +
+      " x " +
+      formatRupiah(item.price) +
+      "%0A%0A";
   });
 
-  const total = cart.reduce(
-    (sum, item) => sum + item.price * item.quantity,
-    0
-  );
+  const total =
+    cart.reduce(function (sum, item) {
+      return sum +
+        item.price * item.quantity;
+    }, 0);
 
   message +=
-    `Total: ${formatRupiah(total)}%0A%0A` +
-    `Saya mau lanjut checkout.`;
+    "Total: " +
+    formatRupiah(total) +
+    "%0A%0A";
 
-  const url =
-    `https://wa.me/${WHATSAPP_NUMBER}?text=${message}`;
+  message +=
+    "Saya mau lanjut checkout.";
 
-  window.open(url, "_blank");
+  window.open(
+    "https://wa.me/" +
+    WHATSAPP_NUMBER +
+    "?text=" +
+    message,
+    "_blank"
+  );
 }
 
 
 /* =========================
-   START APP
+   START
 ========================= */
 
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener(
+  "DOMContentLoaded",
+  function () {
 
-  const loggedIn =
-    localStorage.getItem("novraLoggedIn") === "true";
+    const loggedIn =
+      localStorage.getItem(
+        "novraLoggedIn"
+      ) === "true";
 
-  if (loggedIn) {
-    document.getElementById("authPage").classList.add("hidden");
-    document.getElementById("app").classList.remove("hidden");
+    if (loggedIn) {
+      openStore();
+    } else {
+      document.getElementById("authPage").style.display = "flex";
+      document.getElementById("app").style.display = "none";
+    }
 
-    renderProducts();
     updateCartCount();
   }
-
-});
+);
 ```
