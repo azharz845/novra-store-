@@ -6,21 +6,24 @@ const products = [
     name: "NOVRA BOX TEE — BLACK",
     description: "Boxy Fit / Heavy Cotton / Black",
     price: 100000,
-    oldPrice: 299000
+    oldPrice: 299000,
+    image: "orbital-front.png"
   },
   {
     id: 2,
     name: "NOVRA BOX TEE — WHITE",
     description: "Boxy Fit / Heavy Cotton / White",
     price: 100000,
-    oldPrice: 299000
+    oldPrice: 299000,
+    image: "landscape-front.png"
   },
   {
     id: 3,
     name: "NOVRA BOX TEE — GREY",
     description: "Boxy Fit / Heavy Cotton / Grey",
     price: 100000,
-    oldPrice: 299000
+    oldPrice: 299000,
+    image: "orbital-back.png"
   }
 ];
 
@@ -129,8 +132,16 @@ function login() {
 }
 
 function openStore() {
-  document.getElementById("authPage").style.display = "none";
-  document.getElementById("app").style.display = "block";
+  const authPage = document.getElementById("authPage");
+  const app = document.getElementById("app");
+
+  if (authPage) {
+    authPage.style.display = "none";
+  }
+
+  if (app) {
+    app.style.display = "block";
+  }
 
   renderProducts();
   updateCartCount();
@@ -139,10 +150,22 @@ function openStore() {
 function logout() {
   localStorage.removeItem("novraLoggedIn");
 
-  document.getElementById("app").style.display = "none";
-  document.getElementById("authPage").style.display = "flex";
+  const app = document.getElementById("app");
+  const authPage = document.getElementById("authPage");
 
-  document.getElementById("loginPassword").value = "";
+  if (app) {
+    app.style.display = "none";
+  }
+
+  if (authPage) {
+    authPage.style.display = "flex";
+  }
+
+  const password = document.getElementById("loginPassword");
+
+  if (password) {
+    password.value = "";
+  }
 }
 
 
@@ -175,9 +198,12 @@ function renderProducts() {
 
     card.innerHTML = `
       <div class="product-image">
-        <div class="product-placeholder">
-          NOVRA
-        </div>
+        <img
+          src="${product.image}"
+          alt="${product.name}"
+          loading="lazy"
+          onerror="this.style.display='none'; this.parentElement.classList.add('image-error');"
+        >
       </div>
 
       <div class="product-info">
@@ -246,9 +272,12 @@ function addToCart(id) {
   updateCartCount();
   renderCart();
 
-  document
-    .getElementById("cartOverlay")
-    .classList.remove("hidden");
+  const overlay =
+    document.getElementById("cartOverlay");
+
+  if (overlay) {
+    overlay.classList.remove("hidden");
+  }
 }
 
 function saveCart() {
@@ -316,6 +345,7 @@ function renderCart() {
         </p>
 
         <div style="margin-top:10px;">
+
           <button
             onclick="changeQuantity(${item.id}, -1)"
             class="remove-btn">
@@ -331,10 +361,12 @@ function renderCart() {
             class="remove-btn">
             +
           </button>
+
         </div>
       </div>
 
       <div style="text-align:right;">
+
         <strong>
           ${formatRupiah(subtotal)}
         </strong>
@@ -346,6 +378,7 @@ function renderCart() {
           class="remove-btn">
           Hapus
         </button>
+
       </div>
     `;
 
@@ -388,25 +421,30 @@ function removeFromCart(id) {
 }
 
 function openCart() {
-  document
-    .getElementById("cartOverlay")
-    .classList.remove("hidden");
+  const overlay =
+    document.getElementById("cartOverlay");
+
+  if (overlay) {
+    overlay.classList.remove("hidden");
+  }
 
   renderCart();
 }
 
 function closeCart(event) {
+  const overlay =
+    document.getElementById("cartOverlay");
+
+  if (!overlay) return;
+
   if (
     event &&
-    event.target !==
-    document.getElementById("cartOverlay")
+    event.target !== overlay
   ) {
     return;
   }
 
-  document
-    .getElementById("cartOverlay")
-    .classList.add("hidden");
+  overlay.classList.add("hidden");
 }
 
 
@@ -425,6 +463,7 @@ function checkoutWhatsApp() {
     "Halo Novra, saya mau order:%0A%0A";
 
   cart.forEach(function (item) {
+
     message +=
       "• " +
       item.name +
@@ -475,8 +514,20 @@ document.addEventListener(
     if (loggedIn) {
       openStore();
     } else {
-      document.getElementById("authPage").style.display = "flex";
-      document.getElementById("app").style.display = "none";
+
+      const authPage =
+        document.getElementById("authPage");
+
+      const app =
+        document.getElementById("app");
+
+      if (authPage) {
+        authPage.style.display = "flex";
+      }
+
+      if (app) {
+        app.style.display = "none";
+      }
     }
 
     updateCartCount();
