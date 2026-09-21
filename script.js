@@ -1,4 +1,3 @@
-```javascript
 const WHATSAPP_NUMBER = "6285810127651";
 
 const products = [
@@ -26,7 +25,6 @@ const products = [
 ];
 
 let cart = JSON.parse(localStorage.getItem("novraCart") || "[]");
-
 
 /* =========================
    AUTH
@@ -104,7 +102,9 @@ function login() {
     document.getElementById("authMessage");
 
   const savedUser =
-    JSON.parse(localStorage.getItem("novraUser") || "null");
+    JSON.parse(
+      localStorage.getItem("novraUser") || "null"
+    );
 
   if (!savedUser) {
     message.textContent =
@@ -482,4 +482,3 @@ document.addEventListener(
     updateCartCount();
   }
 );
-```
